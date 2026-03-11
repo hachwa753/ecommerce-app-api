@@ -85,59 +85,68 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   if (state.productStatus == ProductStatus.loaded) {
                     // print(state.product.length);
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                      ),
-                      itemCount: state.product.length,
-                      itemBuilder: (context, index) {
-                        final product = state.product[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => ProductDetail(id: product.id),
+                    return Stack(
+                      children: [
+                        GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                              ),
+                          itemCount: state.product.length,
+                          itemBuilder: (context, index) {
+                            final product = state.product[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            ProductDetail(id: product.id),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                child: Column(
+                                  children: [
+                                    Image.network(
+                                      product.thumbnail,
+                                      height: 100,
+                                    ),
+                                    Text(product.title),
+                                    SizedBox(height: 8),
+                                    // Align(
+                                    //   alignment: Alignment.bottomLeft,
+                                    //   child: Container(
+                                    //     margin: EdgeInsets.only(right: 5),
+                                    //     padding: EdgeInsets.symmetric(horizontal: 5),
+                                    //     decoration: BoxDecoration(
+                                    //       color: Colors.grey.shade200,
+                                    //     ),
+                                    //     child: Text(product.tags.join(",")),
+                                    //   ),
+                                    // ),
+                                    Wrap(
+                                      spacing: 5,
+
+                                      children:
+                                          product.tags
+                                              .map(
+                                                (e) => Container(
+                                                  // margin: EdgeInsets.only(right: 5),
+                                                  color: Colors.grey.shade200,
+                                                  child: Text(e),
+                                                ),
+                                              )
+                                              .toList(),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
-                          child: Container(
-                            child: Column(
-                              children: [
-                                Image.network(product.thumbnail, height: 100),
-                                Text(product.title),
-                                SizedBox(height: 8),
-                                // Align(
-                                //   alignment: Alignment.bottomLeft,
-                                //   child: Container(
-                                //     margin: EdgeInsets.only(right: 5),
-                                //     padding: EdgeInsets.symmetric(horizontal: 5),
-                                //     decoration: BoxDecoration(
-                                //       color: Colors.grey.shade200,
-                                //     ),
-                                //     child: Text(product.tags.join(",")),
-                                //   ),
-                                // ),
-                                Wrap(
-                                  spacing: 5,
-
-                                  children:
-                                      product.tags
-                                          .map(
-                                            (e) => Container(
-                                              // margin: EdgeInsets.only(right: 5),
-                                              color: Colors.grey.shade200,
-                                              child: Text(e),
-                                            ),
-                                          )
-                                          .toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                        ),
+                      ],
                     );
                   }
                   return SizedBox();

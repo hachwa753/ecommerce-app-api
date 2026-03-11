@@ -1,5 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerceappapi/core/utils/date_extension.dart';
+import 'package:ecommerceappapi/features/carts/presentation/cart_bloc/cart_bloc.dart';
+import 'package:ecommerceappapi/features/products/domain/model/product.dart';
 import 'package:ecommerceappapi/features/products/presentation/product_bloc/product_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +16,7 @@ class ProductDetail extends StatefulWidget {
 }
 
 class _ProductDetailState extends State<ProductDetail> {
+  Product? selectedProduct;
   @override
   void initState() {
     context.read<ProductBloc>().add(FetchProductDetail(widget.id));
@@ -38,6 +41,7 @@ class _ProductDetailState extends State<ProductDetail> {
             if (state.product.isEmpty) {
               return Center(child: Text("No Product Found"));
             }
+            selectedProduct = state.selectedProduct;
             final product = state.selectedProduct!;
 
             return SingleChildScrollView(
@@ -172,6 +176,50 @@ class _ProductDetailState extends State<ProductDetail> {
           }
           return SizedBox();
         },
+      ),
+
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: BlocBuilder<ProductBloc, ProductState>(
+            builder: (context, productState) {
+              final product = productState.selectedProduct;
+
+              return BlocBuilder<CartBloc, CartState>(
+                builder: (context, cartState) {
+                  bool inCart = false;
+
+                  if (product != null &&
+                      cartState.cartStatus == CartStatus.loaded) {
+                    // Check if product is already in cart
+                    inCart = cartState.cart.any(
+                      (cart) => cart.products.any((p) => p.id == product.id),
+                    );
+                  }
+
+                  return ElevatedButton(
+                    onPressed:
+                        product == null || inCart
+                            ? null // disable if product is null or already in cart
+                            : () {
+                              context.read<CartBloc>().add(
+                                AddProductToCart(product),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "${product.title} added to cart",
+                                  ),
+                                ),
+                              );
+                            },
+                    child: Text(inCart ? "Already in Cart" : "Add To Cart"),
+                  );
+                },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
